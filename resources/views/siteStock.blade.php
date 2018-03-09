@@ -7,13 +7,13 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header" id="stock_card">{{$site->site_name}} Stock</div>
-
                 <div class="card-body">
                     @if (session('status'))
                         <div class="alert alert-success">
                             {{ session('status') }}
                         </div>
                     @endif
+                    <div class="row"><center style="margin: auto;"><h4>Site Stock (Total Amount: Rs.{{$total}})</h4></center></div>
                       <center><div id="chart_div"></div></center>
                     <div id="accordion" role="tablist" aria-multiselectable="true">
                         @foreach($categories as $category)
@@ -22,7 +22,7 @@
                                 <div class="card-header" role="tab" id="heading{{$category->id}}">
                                   <h5 class="mb-0">
                                     <a clas="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{$category->id}}" aria-expanded="true" aria-controls="collapse{{$category->id}}">
-                                        {{$category->category}}<span style="float: right;"> (Total Amt: {{$category->amount}})</span>
+                                        {{$category->category}}<span style="float: right;"> (Total Amt: Rs.{{$category->amount}})</span>
                                     </a>
                                   </h5>
                                 </div>
@@ -60,6 +60,36 @@
                         @endforeach
                       
                     </div>
+                        <table class="sitestock" style="display: none;">
+                          <thead>
+                              <tr>
+                                  <th>Sub Category</th>
+                                  <th>Rate</th>
+                                  <th>Quantity</th>
+                                  <th>Amount</th>
+                                  <th>Comment</th>
+                                  <th>Date</th>
+                              </tr>
+                          </thead>                            
+                          <tbody>
+                            @foreach($categories as $category)
+                              @if(count($category->stock))
+                                @foreach($category->stock as $stock)
+                                    <tr>
+                                        <td>{{$stock->subcategory->subcategory}}</td>
+                                        <td>{{$stock->rate}}</td>
+                                        <td>{{$stock->qty}}</td>
+                                        <td>{{$stock->amount}}</td>
+                                        <td>{{$stock->comment}}</td>
+                                        <td>{{$stock->date}}</td>
+                                    </tr>
+                                @endforeach
+                              @endif
+                            @endforeach
+                          </tbody>
+                        </table>
+                    <br>
+                    <center><a href="" id="siteexport" class="btn btn-primary">Generate Report</a></center>
 
                 </div>
             </div>
@@ -91,7 +121,7 @@
               ]);
 
               // Set chart options
-              var options = {'title':'Site Stock',
+              var options = {'title':'',
                              'width':400,
                              'height':300};
 

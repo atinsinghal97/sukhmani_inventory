@@ -116,22 +116,26 @@
     <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> -->
     <script src="{{ asset('js/jquery.table2excel.js') }}"></script>    
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 
     <script type="text/javascript">
-        $("#export").click(function(){
+        $("#warehouseexport").click(function(){
             date = new Date();
-          $("#table2excel").table2excel({
+          $(".warehousestock").table2excel({
             // exclude CSS class
             exclude: ".noExl",
             name: "Worksheet Name",
-            filename: date+".xls" //do not include extension
+            filename: "Warehouse Stock"+date+".xls" //do not include extension
           }); 
         }); 
-
-        $(document).ready(function() {
-            $('.datatable').DataTable();
-        });
+        $("#siteexport").click(function(){
+            date = new Date();
+          $(".sitestock").table2excel({
+            // exclude CSS class
+            exclude: ".noExl",
+            name: "Worksheet Name",
+            filename: "Site Stock"+date+".xls" //do not include extension
+          }); 
+        }); 
 
         $(document).on("click", ".deleteRow", function(){
             $(this).closest('tr').remove();
@@ -153,6 +157,7 @@
             $(this).closest('tr').find('.amount').val(costing*quantity);
         });
 
+        // for inventory
         $(document).on("change", ".category", function(){
             category = $(this).val();
             c = $(this).closest('tr').attr('count');
@@ -166,6 +171,7 @@
                 success: function(data){
                     console.log(data);
                     $("tr[count='"+data[1]+"']").find(".subcategory").html('');
+                    $("tr[count='"+data[1]+"']").find(".vendor").append('<option>Select Vendor</option');
                     data[0].forEach(function(d){
                         $("tr[count='"+data[1]+"']").find(".subcategory").append('<option value='+d.id+'>'+d.subcategory+'</option>');
                         console.log(d);
@@ -173,6 +179,94 @@
                 }
             });
         });
+
+        // for inventory
+        $(document).on("change", ".subcategory", function(){
+            subcategory = $(this).val();
+            c = $(this).closest('tr').attr('count');
+            $.ajax({
+                type: 'GET',
+                url: 'getvendor',
+                data: {
+                    'subcategory' : subcategory,
+                    'c' : c
+                },
+                success: function(data){
+                    console.log(data);
+                    $("tr[count='"+data[1]+"']").find(".vendor").html('');
+                    $("tr[count='"+data[1]+"']").find(".vendor").append('<option>Select Vendor</option');
+                    data[0].forEach(function(d){
+                        $("tr[count='"+data[1]+"']").find(".vendor").append('<option value='+d.id+'>'+d.vendor+'</option>');
+                        console.log(d);
+                    })
+                }
+            });
+        });
+
+        // for inventory
+        $(document).on("change", ".vendor", function(){
+            vendor = $(this).val();
+            c = $(this).closest('tr').attr('count');
+            $.ajax({
+                type: 'GET',
+                url: 'getspecification',
+                data: {
+                    'vendor' : vendor,
+                    'c' : c
+                },
+                success: function(data){
+                    console.log(data);
+                    $("tr[count='"+data[1]+"']").find(".specification").html('');
+                    $("tr[count='"+data[1]+"']").find(".specification").append('<option>Select Specification</option');
+                    data[0].forEach(function(d){
+                        $("tr[count='"+data[1]+"']").find(".specification").append('<option value='+d.id+'>'+d.specification+'</option>');
+                        console.log(d);
+                    })
+                }
+            });
+        });
+
+        // for inventory
+        $(document).on("change", ".specification", function(){
+            specification = $(this).val();
+            c = $(this).closest('tr').attr('count');
+            $.ajax({
+                type: 'GET',
+                url: 'getspecificationrates',
+                data: {
+                    'specification' : specification,
+                    'c' : c
+                },
+                success: function(data){
+                    console.log(data);
+                    $("tr[count='"+data[1]+"']").find(".costing").val(data[0]);
+                }
+            });
+        });        
+
+        //for vendor - specification
+        $(document).on("change", "#category", function(){
+            category = $(this).val();
+            c = 1;
+            $.ajax({
+                type: 'GET',
+                url: 'getsubcategory',
+                data: {
+                    'category' : category,
+                    'c' : c
+                },
+                success: function(data){
+                    console.log(data);
+                    $("#subcategory").html('');
+                    data[0].forEach(function(d){
+                        $("#subcategory").append('<option value='+d.id+'>'+d.subcategory+'</option>');
+                        console.log(d);
+                    })
+                }
+            });
+        });
+
+        
         // $(document).on("click", ".dropdown", function(){
         //     wid = $(this).width();
         //     console.log(wid);

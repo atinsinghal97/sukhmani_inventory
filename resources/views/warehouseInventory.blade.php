@@ -49,8 +49,15 @@
 <div class="container">
   <div class="jumbotron">
     <div class="row">
+        <div class="row" style="width: 100%;">
+            <h3>
+                <a class="btn btn-primary" href="{{route('category.index')}}">Category</a>
+                <a class="btn btn-primary" href="{{route('subcategory.index')}}">SubCategory</a>
+                <a class="btn btn-primary" href="{{route('vendor.index')}}">Vendor</a>
+            </h3>
+        </div>
         <div class="row" style="width: 100%; text-align: center;">
-        <h2 id="warehouse_head" style="margin: auto;">Warehouse Inventory</h2>
+            <h2 id="warehouse_head" style="margin: auto;">Warehouse Inventory</h2>
             
         </div>
         <form method="POST" action="{{route('saveWarehouseInventory')}}">
@@ -61,9 +68,13 @@
                         <tr>
                             <th style="width: 40%;">Category</th>
                             <th style="width: 19%;">Sub Category</th>
+                            <th style="width: 19%;">Vendor</th>
+                            <th style="width: 19%;">Specification</th>
                             <th style="width: 15%;" id="rate">Rate/Unit(Rs)</th>
                             <th style="width: 12%;">Quantity</th>
                             <th style="width: 15%;">Total Cost(Rs)</th>
+                            <th style="width: 15%;">Purchased By</th>
+                            <th style="width: 15%;">Recieved By</th>
                             <th style="width: 15%;">Comment</th>
                             <th style="width:10%;">Date</th>
                             <th>Delete</th>
@@ -85,6 +96,16 @@
                                 </select>
                             </td>
                             <td>
+                                <select class="form-control vendor" id="warehouse_vendor" name="vendors[]">
+                                    <option disabled="true">Select SubCategory</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control specification" id="warehouse_specification" name="specifications[]">
+                                    <option disabled="true">Select Vendor</option>
+                                </select>
+                            </td>
+                            <td>
                                 <input type="number" class="form-control costing" name="costing[]"  step="0.01">
                             </td>
                             <td>
@@ -92,6 +113,12 @@
                             </td>
                             <td>
                                 <input type="number" class="form-control amount" name="amount[]" step="0.01" >
+                            </td>
+                            <td>
+                                <input type="text" class="form-control purchased_by" name="purchased_by[]">
+                            </td>
+                            <td>
+                                <input type="text" class="form-control recieved_by" name="recieved_by[]">
                             </td>
                             <td>
                                 <input type="test" class="form-control comment" name="comment[]">

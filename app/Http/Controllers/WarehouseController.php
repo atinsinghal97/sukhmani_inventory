@@ -7,6 +7,7 @@ use App\SubCategory;
 use App\Category;
 use App\WarehouseStock;
 use App\LogWarehouseStock;
+use App\Specification;
 use Auth;
 use AWS;
 
@@ -16,12 +17,13 @@ class WarehouseController extends Controller
     if(Auth::user()->role !=1)
       abort('404');
       $categories = Category::get();
+      $total = warehouseStock::sum('amount');
       foreach ($categories as $key => $category) {
         $subcategories = SubCategory::where('category_id',$category->id)->pluck('id')->toArray();
         $categories[$key]->stock = warehouseStock::whereIn('subcategory_id',$subcategories)->where('qty','!=',0)->get();
         $categories[$key]->amount = warehouseStock::whereIn('subcategory_id',$subcategories)->sum('amount');
       }
-    	return view('warehouseStock',compact('categories'));
+    	return view('warehouseStock',compact('categories','total'));
     }
 
     public function inventory(){
@@ -32,41 +34,45 @@ class WarehouseController extends Controller
     }
 
     public function save(Request $request){
-        $categories = $request->subcategories;
+        $specifications = $request->specifications;
         $quantities = $request->quantity;
         $costings = $request->costing;
         $amounts = $request->amount;
+        $purchased_by = $request->purchased_by;
+        $recieved_by = $request->recieved_by;
         $dates = $request->date;
-    		$comments = $request->comment;      
-    		foreach ($categories as $key => $category) {
-     			$SubCategory = SubCategory::where('id',$categories[$key])->get();
-     			if(count($SubCategory) == 0)
+    		$comments = $request->comment;
+    		foreach ($specifications as $key => $specification) {
+     			$specification = Specification::where('id',$specifications[$key])->get();
+     			if(count($specification) == 0)
      				continue;
-          $stocks = warehouseStock::where('subcategory_id',$categories[$key])->where('rate',$costings[$key])->get();
-          if(count($stocks)){
-            $stock = $stocks[0];
-            $stock->qty += $quantities[$key];
-            $stock->amount += $costings[$key] * $quantities[$key];
-            $stock->date = $dates[$key];
-            $stock->comment = $comments[$key];
-            $stock->user_id = Auth::user()->id;
-            $stock->save();
-          }else{
-       			$stock = new WarehouseStock;
-       			$stock->subcategory_id = $categories[$key];
-       			$stock->rate = $costings[$key];
-       			$stock->qty = $quantities[$key];
-       			$stock->amount = $costings[$key] * $quantities[$key];
-       			$stock->comment = $comments[$key];
-       			$stock->date = $dates[$key];
-       			$stock->user_id = Auth::user()->id;
-       			$stock->save();
-          }
-          $stock = new LogWarehouseStock;
-          $stock->subcategory_id = $categories[$key];
+          // $stocks = warehouseStock::where('subcategory_id',$categories[$key])->where('rate',$costings[$key])->get();
+          // if(count($stocks)){
+          //   $stock = $stocks[0];
+          //   $stock->qty += $quantities[$key];
+          //   $stock->amount += $costings[$key] * $quantities[$key];
+          //   $stock->date = $dates[$key];
+          //   $stock->comment = $comments[$key];
+          //   $stock->user_id = Auth::user()->id;
+          //   $stock->save();
+          // }else{
+       			// $stock = new WarehouseStock;
+       			// $stock->subcategory_id = $categories[$key];
+       			// $stock->rate = $costings[$key];
+       			// $stock->qty = $quantities[$key];
+       			// $stock->amount = $costings[$key] * $quantities[$key];
+       			// $stock->comment = $comments[$key];
+       			// $stock->date = $dates[$key];
+       			// $stock->user_id = Auth::user()->id;
+       			// $stock->save();
+          // }
+          $stock = new WarehouseStock;
+          $stock->specification_id = $specifications[$key];
           $stock->rate = $costings[$key];
           $stock->qty = $quantities[$key];
           $stock->amount = $costings[$key] * $quantities[$key];
+          $stock->purchased_by = $purchased_by[$key];
+          $stock->recieved_by = $recieved_by[$key];
           $stock->comment = $comments[$key];
           $stock->date = $dates[$key];
           $stock->user_id = Auth::user()->id;
